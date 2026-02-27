@@ -19,6 +19,14 @@ export default function TaxDashboard() {
         section_80d_parents: 0,
         parents_senior: false,
         home_loan_interest: 0,
+        basic_salary: 0,
+        hra: 0,
+        bonus: 0,
+        gratuity: 0,
+        special_allowance: 0,
+        professional_tax: 0,
+        pf_contribution: 0,
+        leave_encashment: 0,
     });
     const [comparison, setComparison] = useState<any>(null);
     const [loading, setLoading] = useState(false);
@@ -26,9 +34,11 @@ export default function TaxDashboard() {
     const [showBreakdown, setShowBreakdown] = useState<'OLD' | 'NEW' | null>(null);
 
     useEffect(() => {
-        // We start with a clean slate on refresh as requested.
-        // Users can manually load their saved data if needed.
-    }, []);
+        const totalSalary = profile.basic_salary + profile.hra + profile.special_allowance + profile.bonus + profile.gratuity + profile.leave_encashment;
+        if (totalSalary !== profile.salary) {
+            setProfile(prev => ({ ...prev, salary: totalSalary }));
+        }
+    }, [profile.basic_salary, profile.hra, profile.special_allowance, profile.bonus, profile.gratuity, profile.leave_encashment]);
 
     const fetchData = async () => {
         try {
@@ -46,6 +56,14 @@ export default function TaxDashboard() {
                     section_80d_parents: 0,
                     parents_senior: false,
                     home_loan_interest: 0,
+                    basic_salary: 0,
+                    hra: 0,
+                    bonus: 0,
+                    gratuity: 0,
+                    special_allowance: 0,
+                    professional_tax: 0,
+                    pf_contribution: 0,
+                    leave_encashment: 0,
                 });
                 setComparison(null);
             }
@@ -86,8 +104,7 @@ export default function TaxDashboard() {
             if (data.success) {
                 setProfile((prev) => ({
                     ...prev,
-                    salary: data.data.salary,
-                    tds: data.data.tds,
+                    ...data.data, // Map all fields from OCR result
                 }));
                 alert(data.message);
             }
@@ -169,15 +186,60 @@ export default function TaxDashboard() {
                                         <span className="input-group-text">₹</span>
                                         <input
                                             type="number"
-                                            className="form-control"
+                                            className="form-control bg-light"
                                             name="salary"
                                             value={profile.salary === 0 ? '' : profile.salary}
+                                            onChange={handleChange}
+                                            placeholder="0"
+                                            onFocus={(e) => e.target.select()}
+                                            readOnly
+                                        />
+                                    </div>
+                                    <small className="text-muted">Total of all salary components</small>
+                                </div>
+                                <div className="col-md-6">
+                                    <label className="form-label small fw-bold">TDS Already Paid</label>
+                                    <div className="input-group">
+                                        <span className="input-group-text">₹</span>
+                                        <input
+                                            type="number"
+                                            className="form-control"
+                                            name="tds"
+                                            value={profile.tds === 0 ? '' : profile.tds}
                                             onChange={handleChange}
                                             placeholder="0"
                                             onFocus={(e) => e.target.select()}
                                         />
                                     </div>
                                 </div>
+
+                                <div className="col-12"><small className="fw-bold text-primary text-uppercase">Salary Breakdown (Annualized)</small></div>
+
+                                <div className="col-md-4">
+                                    <label className="form-label small fw-bold">Basic Salary</label>
+                                    <input type="number" className="form-control form-control-sm" name="basic_salary" value={profile.basic_salary === 0 ? '' : profile.basic_salary} onChange={handleChange} placeholder="0" onFocus={(e) => e.target.select()} />
+                                </div>
+                                <div className="col-md-4">
+                                    <label className="form-label small fw-bold">HRA</label>
+                                    <input type="number" className="form-control form-control-sm" name="hra" value={profile.hra === 0 ? '' : profile.hra} onChange={handleChange} placeholder="0" onFocus={(e) => e.target.select()} />
+                                </div>
+                                <div className="col-md-4">
+                                    <label className="form-label small fw-bold">Special Allowance</label>
+                                    <input type="number" className="form-control form-control-sm" name="special_allowance" value={profile.special_allowance === 0 ? '' : profile.special_allowance} onChange={handleChange} placeholder="0" onFocus={(e) => e.target.select()} />
+                                </div>
+                                <div className="col-md-4">
+                                    <label className="form-label small fw-bold">Bonus</label>
+                                    <input type="number" className="form-control form-control-sm" name="bonus" value={profile.bonus === 0 ? '' : profile.bonus} onChange={handleChange} placeholder="0" onFocus={(e) => e.target.select()} />
+                                </div>
+                                <div className="col-md-4">
+                                    <label className="form-label small fw-bold">Gratuity</label>
+                                    <input type="number" className="form-control form-control-sm" name="gratuity" value={profile.gratuity === 0 ? '' : profile.gratuity} onChange={handleChange} placeholder="0" onFocus={(e) => e.target.select()} />
+                                </div>
+                                <div className="col-md-4">
+                                    <label className="form-label small fw-bold">Leave Encashment</label>
+                                    <input type="number" className="form-control form-control-sm" name="leave_encashment" value={profile.leave_encashment === 0 ? '' : profile.leave_encashment} onChange={handleChange} placeholder="0" onFocus={(e) => e.target.select()} />
+                                </div>
+
                                 <div className="col-md-6">
                                     <label className="form-label small fw-bold">Other Income</label>
                                     <div className="input-group">
@@ -193,19 +255,12 @@ export default function TaxDashboard() {
                                         />
                                     </div>
                                 </div>
+
                                 <div className="col-md-6">
-                                    <label className="form-label small fw-bold">TDS Already Paid</label>
+                                    <label className="form-label small fw-bold text-danger">Professional Tax (Deduction)</label>
                                     <div className="input-group">
                                         <span className="input-group-text">₹</span>
-                                        <input
-                                            type="number"
-                                            className="form-control"
-                                            name="tds"
-                                            value={profile.tds === 0 ? '' : profile.tds}
-                                            onChange={handleChange}
-                                            placeholder="0"
-                                            onFocus={(e) => e.target.select()}
-                                        />
+                                        <input type="number" className="form-control" name="professional_tax" value={profile.professional_tax === 0 ? '' : profile.professional_tax} onChange={handleChange} placeholder="0" onFocus={(e) => e.target.select()} />
                                     </div>
                                 </div>
 
@@ -226,6 +281,7 @@ export default function TaxDashboard() {
                                         placeholder="0"
                                         onFocus={(e) => e.target.select()}
                                     />
+                                    {profile.pf_contribution > 0 && <small className="text-muted">Includes PF: {formatCurrency(profile.pf_contribution)}</small>}
                                 </div>
                                 <div className="col-md-6">
                                     <label className="form-label small fw-bold">
@@ -351,9 +407,13 @@ export default function TaxDashboard() {
                                         </div>
                                         <table className="table table-sm table-borderless small mb-0">
                                             <thead>
+                                                <tr className="border-bottom bg-light">
+                                                    <th className="py-2">Net Taxable Income</th>
+                                                    <th className="text-end py-2">{formatCurrency(breakdownData.taxableIncome)}</th>
+                                                </tr>
                                                 <tr className="border-bottom">
-                                                    <th>Slab</th>
-                                                    <th className="text-end">Tax</th>
+                                                    <th className="pt-3">Slab Breakdown</th>
+                                                    <th className="text-end pt-3">Tax</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
