@@ -34,7 +34,7 @@ export class IncomeController {
 
     @Post('profile')
     async upsertProfile(@Req() req: Request, @Body() data: TaxProfileDto) {
-        const userId = req['user'].sub;
+        const userId = req['user'].id;
         const profile = await this.incomeService.upsertProfile(userId, data);
 
         const comparison = this.taxService.calculateTax({
