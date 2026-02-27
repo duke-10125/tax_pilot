@@ -12,7 +12,7 @@ export class IncomeController {
 
     @Get('profile')
     async getProfile(@Req() req: Request) {
-        const userId = req['user'].sub; // sub is the user ID in Supabase JWT
+        const userId = req['user'].id; // sub is for JWT, id is for Supabase User object
         const profile = await this.incomeService.getProfile(userId);
 
         if (!profile) {
