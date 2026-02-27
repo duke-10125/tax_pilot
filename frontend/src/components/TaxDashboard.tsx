@@ -515,6 +515,12 @@ export default function TaxDashboard() {
                                             <h2 className="fw-bold">{formatCurrency(comparison[comparison.suggestedRegime.toLowerCase() + 'Regime'].totalTax - profile.tds)}</h2>
                                         </div>
                                     )}
+
+                                    {comparison[comparison.suggestedRegime.toLowerCase() + 'Regime'].totalTax <= 10000 && (
+                                        <div className="mt-3">
+                                            <span className="fw-bold fs-4">"GAREEB"</span>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         ) : (
