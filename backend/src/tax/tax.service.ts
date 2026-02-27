@@ -10,6 +10,7 @@ export interface TaxInput {
     homeLoanInterest: number;
     professionalTax: number;
     pfContribution: number;
+    employmentType: 'SALARIED' | 'BUSINESS';
 }
 
 export interface SlabDetail {
@@ -60,7 +61,10 @@ export class TaxService {
 
         // Deductions
         taxableIncome -= input.professionalTax;
-        taxableIncome -= this.OLD_STANDARD_DEDUCTION;
+
+        if (input.employmentType === 'SALARIED') {
+            taxableIncome -= this.OLD_STANDARD_DEDUCTION;
+        }
 
         // 80C includes manual input + PF contribution from slip
         const total80C = input.section80c + input.pfContribution;
@@ -126,7 +130,11 @@ export class TaxService {
 
         // Deductions
         taxableIncome -= input.professionalTax;
-        taxableIncome -= this.NEW_STANDARD_DEDUCTION;
+
+        if (input.employmentType === 'SALARIED') {
+            taxableIncome -= this.NEW_STANDARD_DEDUCTION;
+        }
+
         taxableIncome = Math.max(0, taxableIncome);
 
         let tax = 0;

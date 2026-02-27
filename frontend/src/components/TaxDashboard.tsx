@@ -27,18 +27,22 @@ export default function TaxDashboard() {
         professional_tax: 0,
         pf_contribution: 0,
         leave_encashment: 0,
+        employment_type: 'SALARIED' as 'SALARIED' | 'BUSINESS',
     });
+    const [showDetailed, setShowDetailed] = useState(false);
     const [comparison, setComparison] = useState<any>(null);
     const [loading, setLoading] = useState(false);
     const [saving, setSaving] = useState(false);
     const [showBreakdown, setShowBreakdown] = useState<'OLD' | 'NEW' | null>(null);
 
     useEffect(() => {
-        const totalSalary = (profile.basic_salary || 0) + (profile.hra || 0) + (profile.special_allowance || 0) + (profile.bonus || 0) + (profile.gratuity || 0) + (profile.leave_encashment || 0);
-        if (totalSalary !== profile.salary) {
-            setProfile(prev => ({ ...prev, salary: totalSalary }));
+        if (showDetailed) {
+            const totalSalary = (profile.basic_salary || 0) + (profile.hra || 0) + (profile.special_allowance || 0) + (profile.bonus || 0) + (profile.gratuity || 0) + (profile.leave_encashment || 0);
+            if (totalSalary !== profile.salary) {
+                setProfile(prev => ({ ...prev, salary: totalSalary }));
+            }
         }
-    }, [profile.basic_salary, profile.hra, profile.special_allowance, profile.bonus, profile.gratuity, profile.leave_encashment]);
+    }, [showDetailed, profile.basic_salary, profile.hra, profile.special_allowance, profile.bonus, profile.gratuity, profile.leave_encashment]);
 
     const fetchData = async () => {
         try {
@@ -64,8 +68,10 @@ export default function TaxDashboard() {
                     professional_tax: 0,
                     pf_contribution: 0,
                     leave_encashment: 0,
+                    employment_type: 'SALARIED',
                 });
                 setComparison(null);
+                setShowDetailed(false);
             }
         } catch (err) {
             console.error('Error fetching profile:', err);
@@ -74,11 +80,12 @@ export default function TaxDashboard() {
         }
     };
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, value, type, checked } = e.target;
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+        const { name, value, type } = e.target;
+        const checked = (e.target as HTMLInputElement).checked;
         setProfile((prev) => ({
             ...prev,
-            [name]: type === 'checkbox' ? checked : parseFloat(value) || 0,
+            [name]: type === 'checkbox' ? checked : (name === 'employment_type' ? value : (parseFloat(value) || 0)),
         }));
     };
 
@@ -199,23 +206,47 @@ export default function TaxDashboard() {
                         </div>
 
                         <form onSubmit={handleSave} autoComplete="off">
+                            <div className="row g-3 mb-4">
+                                <div className="col-md-6">
+                                    <label className="form-label small fw-bold text-primary">I am a...</label>
+                                    <select className="form-select" name="employment_type" value={profile.employment_type} onChange={handleChange}>
+                                        <option value="SALARIED">Salaried Employee</option>
+                                        <option value="BUSINESS">Business Owner / Freelancer</option>
+                                    </select>
+                                </div>
+                                {profile.employment_type === 'SALARIED' && (
+                                    <div className="col-md-6 d-flex align-items-end mb-2">
+                                        <div className="form-check form-switch">
+                                            <input className="form-check-input" type="checkbox" id="showDetailed" checked={showDetailed} onChange={(e) => setShowDetailed(e.target.checked)} />
+                                            <label className="form-check-label small" htmlFor="showDetailed">Show Detailed Salary Breakdown</label>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+
                             <div className="row g-3">
                                 <div className="col-md-6">
-                                    <label className="form-label small fw-bold">Annual Gross Salary</label>
+                                    <label className="form-label small fw-bold">
+                                        {profile.employment_type === 'SALARIED' ? 'Annual Gross Salary' : 'Annual Gross Income'}
+                                    </label>
                                     <div className="input-group">
                                         <span className="input-group-text">₹</span>
                                         <input
                                             type="number"
-                                            className="form-control bg-light"
+                                            className={`form-control ${showDetailed ? 'bg-light' : ''}`}
                                             name="salary"
                                             value={profile.salary === 0 ? '' : profile.salary}
                                             onChange={handleChange}
                                             placeholder="0"
                                             onFocus={(e) => e.target.select()}
-                                            readOnly
+                                            readOnly={showDetailed}
                                         />
                                     </div>
-                                    <small className="text-muted">Total of all salary components (including benefits)</small>
+                                    {showDetailed ? (
+                                        <small className="text-muted">Total of all salary components (including benefits)</small>
+                                    ) : (
+                                        <small className="text-muted">Enter your total annual {profile.employment_type === 'SALARIED' ? 'salary' : 'income'}</small>
+                                    )}
                                 </div>
                                 <div className="col-md-6">
                                     <label className="form-label small fw-bold">TDS Already Paid</label>
@@ -233,32 +264,36 @@ export default function TaxDashboard() {
                                     </div>
                                 </div>
 
-                                <div className="col-12"><small className="fw-bold text-primary text-uppercase">Salary Breakdown (Annualized)</small></div>
+                                {showDetailed && profile.employment_type === 'SALARIED' && (
+                                    <>
+                                        <div className="col-12"><small className="fw-bold text-primary text-uppercase">Salary Breakdown (Annualized)</small></div>
 
-                                <div className="col-md-4">
-                                    <label className="form-label small fw-bold">Basic Salary</label>
-                                    <input type="number" className="form-control form-control-sm" name="basic_salary" value={profile.basic_salary === 0 ? '' : profile.basic_salary} onChange={handleChange} placeholder="0" onFocus={(e) => e.target.select()} />
-                                </div>
-                                <div className="col-md-4">
-                                    <label className="form-label small fw-bold">HRA</label>
-                                    <input type="number" className="form-control form-control-sm" name="hra" value={profile.hra === 0 ? '' : profile.hra} onChange={handleChange} placeholder="0" onFocus={(e) => e.target.select()} />
-                                </div>
-                                <div className="col-md-4">
-                                    <label className="form-label small fw-bold">Special Allowance</label>
-                                    <input type="number" className="form-control form-control-sm" name="special_allowance" value={profile.special_allowance === 0 ? '' : profile.special_allowance} onChange={handleChange} placeholder="0" onFocus={(e) => e.target.select()} />
-                                </div>
-                                <div className="col-md-4">
-                                    <label className="form-label small fw-bold">Bonus</label>
-                                    <input type="number" className="form-control form-control-sm" name="bonus" value={profile.bonus === 0 ? '' : profile.bonus} onChange={handleChange} placeholder="0" onFocus={(e) => e.target.select()} />
-                                </div>
-                                <div className="col-md-4">
-                                    <label className="form-label small fw-bold">Gratuity</label>
-                                    <input type="number" className="form-control form-control-sm" name="gratuity" value={profile.gratuity === 0 ? '' : profile.gratuity} onChange={handleChange} placeholder="0" onFocus={(e) => e.target.select()} />
-                                </div>
-                                <div className="col-md-4">
-                                    <label className="form-label small fw-bold">Leave Encashment</label>
-                                    <input type="number" className="form-control form-control-sm" name="leave_encashment" value={profile.leave_encashment === 0 ? '' : profile.leave_encashment} onChange={handleChange} placeholder="0" onFocus={(e) => e.target.select()} />
-                                </div>
+                                        <div className="col-md-4">
+                                            <label className="form-label small fw-bold">Basic Salary</label>
+                                            <input type="number" className="form-control form-control-sm" name="basic_salary" value={profile.basic_salary === 0 ? '' : profile.basic_salary} onChange={handleChange} placeholder="0" onFocus={(e) => e.target.select()} />
+                                        </div>
+                                        <div className="col-md-4">
+                                            <label className="form-label small fw-bold">HRA</label>
+                                            <input type="number" className="form-control form-control-sm" name="hra" value={profile.hra === 0 ? '' : profile.hra} onChange={handleChange} placeholder="0" onFocus={(e) => e.target.select()} />
+                                        </div>
+                                        <div className="col-md-4">
+                                            <label className="form-label small fw-bold">Special Allowance</label>
+                                            <input type="number" className="form-control form-control-sm" name="special_allowance" value={profile.special_allowance === 0 ? '' : profile.special_allowance} onChange={handleChange} placeholder="0" onFocus={(e) => e.target.select()} />
+                                        </div>
+                                        <div className="col-md-4">
+                                            <label className="form-label small fw-bold">Bonus</label>
+                                            <input type="number" className="form-control form-control-sm" name="bonus" value={profile.bonus === 0 ? '' : profile.bonus} onChange={handleChange} placeholder="0" onFocus={(e) => e.target.select()} />
+                                        </div>
+                                        <div className="col-md-4">
+                                            <label className="form-label small fw-bold">Gratuity</label>
+                                            <input type="number" className="form-control form-control-sm" name="gratuity" value={profile.gratuity === 0 ? '' : profile.gratuity} onChange={handleChange} placeholder="0" onFocus={(e) => e.target.select()} />
+                                        </div>
+                                        <div className="col-md-4">
+                                            <label className="form-label small fw-bold">Leave Encashment</label>
+                                            <input type="number" className="form-control form-control-sm" name="leave_encashment" value={profile.leave_encashment === 0 ? '' : profile.leave_encashment} onChange={handleChange} placeholder="0" onFocus={(e) => e.target.select()} />
+                                        </div>
+                                    </>
+                                )}
 
                                 <div className="col-md-6">
                                     <label className="form-label small fw-bold">Other Income</label>

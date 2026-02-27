@@ -18,6 +18,7 @@ export interface TaxProfileDto {
     professional_tax: number;
     pf_contribution: number;
     leave_encashment: number;
+    employment_type: 'SALARIED' | 'BUSINESS';
 }
 
 @Injectable()

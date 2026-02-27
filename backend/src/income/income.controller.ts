@@ -29,6 +29,7 @@ export class IncomeController {
             homeLoanInterest: profile.home_loan_interest,
             professionalTax: profile.professional_tax,
             pfContribution: profile.pf_contribution,
+            employmentType: profile.employment_type,
         });
 
         return { profile, comparison };
@@ -49,6 +50,7 @@ export class IncomeController {
             homeLoanInterest: profile.home_loan_interest,
             professionalTax: profile.professional_tax,
             pfContribution: profile.pf_contribution,
+            employmentType: profile.employment_type,
         });
 
         return { profile, comparison };
