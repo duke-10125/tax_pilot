@@ -3,6 +3,12 @@
 import { useState, useEffect } from 'react';
 import * as api from '@/services/api';
 
+interface SlabDetail {
+    slab: string;
+    rate: number;
+    tax: number;
+}
+
 export default function TaxDashboard() {
     const [profile, setProfile] = useState({
         salary: 0,
@@ -17,6 +23,7 @@ export default function TaxDashboard() {
     const [comparison, setComparison] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
+    const [showBreakdown, setShowBreakdown] = useState<'OLD' | 'NEW' | null>(null);
 
     useEffect(() => {
         fetchData();
@@ -84,7 +91,44 @@ export default function TaxDashboard() {
         }).format(amount);
     };
 
+    const getSuggestions = () => {
+        if (!comparison) return [];
+        const suggestions = [];
+        const currentTotal = profile.section_80c + profile.section_80d_self + profile.section_80d_parents + profile.home_loan_interest;
+
+        if (profile.section_80c < 150000) {
+            suggestions.push({
+                title: 'Increase 80C Investment',
+                text: `You can save more by investing ₹${(150000 - profile.section_80c).toLocaleString()} more in PPF, ELSS, or LIC.`,
+                icon: 'bi-piggy-bank'
+            });
+        }
+        if (profile.section_80d_self < 25000) {
+            suggestions.push({
+                title: 'Health Insurance',
+                text: 'Consider increasing your health insurance premium to claim up to ₹25,000 under Section 80D.',
+                icon: 'bi-heart-pulse'
+            });
+        }
+        if (profile.home_loan_interest === 0) {
+            suggestions.push({
+                title: 'Home Loan Benefit',
+                text: 'If you have a home loan, you can claim up to ₹2L interest under Section 24.',
+                icon: 'bi-house'
+            });
+        }
+        return suggestions;
+    };
+
+    const InfoIcon = ({ text }: { text: string }) => (
+        <span className="ms-1 text-muted cursor-help" title={text}>
+            <i className="bi bi-info-circle small"></i>
+        </span>
+    );
+
     if (loading) return <div>Loading dashboard...</div>;
+
+    const breakdownData = showBreakdown === 'OLD' ? comparison?.oldRegime : comparison?.newRegime;
 
     return (
         <div className="row g-4">
@@ -129,15 +173,24 @@ export default function TaxDashboard() {
                                 <h6 className="fw-bold mb-3 text-secondary">Deductions (Old Regime)</h6>
 
                                 <div className="col-md-6">
-                                    <label className="form-label small fw-bold">Section 80C (Max 1.5L)</label>
+                                    <label className="form-label small fw-bold">
+                                        Section 80C (Max 1.5L)
+                                        <InfoIcon text="Investment in PPF, LIC, ELSS, NPS, etc." />
+                                    </label>
                                     <input type="number" className="form-control" name="section_80c" value={profile.section_80c} onChange={handleChange} />
                                 </div>
                                 <div className="col-md-6">
-                                    <label className="form-label small fw-bold">80D Self Insurance (Max 25k)</label>
+                                    <label className="form-label small fw-bold">
+                                        80D Self Insurance (Max 25k)
+                                        <InfoIcon text="Medical insurance premium for self, spouse, and children." />
+                                    </label>
                                     <input type="number" className="form-control" name="section_80d_self" value={profile.section_80d_self} onChange={handleChange} />
                                 </div>
                                 <div className="col-md-6">
-                                    <label className="form-label small fw-bold">80D Parents Insurance</label>
+                                    <label className="form-label small fw-bold">
+                                        80D Parents Insurance
+                                        <InfoIcon text="Medical insurance premium for parents." />
+                                    </label>
                                     <input type="number" className="form-control" name="section_80d_parents" value={profile.section_80d_parents} onChange={handleChange} />
                                 </div>
                                 <div className="col-md-6 d-flex align-items-end mb-2">
@@ -147,7 +200,10 @@ export default function TaxDashboard() {
                                     </div>
                                 </div>
                                 <div className="col-md-6">
-                                    <label className="form-label small fw-bold">Home Loan Interest (Max 2L)</label>
+                                    <label className="form-label small fw-bold">
+                                        Home Loan Interest (Max 2L)
+                                        <InfoIcon text="Interest paid on home loan under Section 24." />
+                                    </label>
                                     <input type="number" className="form-control" name="home_loan_interest" value={profile.home_loan_interest} onChange={handleChange} />
                                 </div>
 
@@ -160,6 +216,29 @@ export default function TaxDashboard() {
                         </form>
                     </div>
                 </div>
+
+                {comparison && comparison[comparison.suggestedRegime.toLowerCase() + 'Regime'].totalTax > 0 && (
+                    <div className="card shadow-sm border-0 mb-4 bg-light">
+                        <div className="card-body p-4">
+                            <h6 className="fw-bold mb-3"><i className="bi bi-lightbulb text-warning me-2"></i>Tax Saving Suggestions</h6>
+                            <div className="row g-3">
+                                {getSuggestions().map((s, i) => (
+                                    <div key={i} className="col-md-6">
+                                        <div className="d-flex bg-white p-3 rounded-3 shadow-xs h-100">
+                                            <div className="me-3">
+                                                <i className={`bi ${s.icon} fs-4 text-primary`}></i>
+                                            </div>
+                                            <div>
+                                                <div className="fw-bold small">{s.title}</div>
+                                                <div className="text-muted small">{s.text}</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
 
             <div className="col-lg-4">
@@ -177,14 +256,59 @@ export default function TaxDashboard() {
                                     </div>
                                 </div>
 
-                                <div className="d-flex justify-content-between mb-2">
-                                    <span className="text-muted">Old Regime Tax</span>
-                                    <span className="fw-bold">{formatCurrency(comparison.oldRegime.totalTax)}</span>
+                                <div className="d-flex justify-content-between align-items-center mb-2">
+                                    <span className="text-muted small">Old Regime Tax</span>
+                                    <div>
+                                        <span className="fw-bold me-2">{formatCurrency(comparison.oldRegime.totalTax)}</span>
+                                        <button className="btn btn-link btn-sm p-0" onClick={() => setShowBreakdown('OLD')}>Details</button>
+                                    </div>
                                 </div>
-                                <div className="d-flex justify-content-between mb-4">
-                                    <span className="text-muted">New Regime Tax</span>
-                                    <span className="fw-bold">{formatCurrency(comparison.newRegime.totalTax)}</span>
+                                <div className="d-flex justify-content-between align-items-center mb-4">
+                                    <span className="text-muted small">New Regime Tax</span>
+                                    <div>
+                                        <span className="fw-bold me-2">{formatCurrency(comparison.newRegime.totalTax)}</span>
+                                        <button className="btn btn-link btn-sm p-0" onClick={() => setShowBreakdown('NEW')}>Details</button>
+                                    </div>
                                 </div>
+
+                                {showBreakdown && (
+                                    <div className="bg-light p-3 rounded-3 mb-4 border border-primary-subtle shadow-sm">
+                                        <div className="d-flex justify-content-between align-items-center mb-2">
+                                            <h6 className="fw-bold m-0">{showBreakdown} Regime Breakdown</h6>
+                                            <button className="btn-close small" style={{ fontSize: '0.7rem' }} onClick={() => setShowBreakdown(null)}></button>
+                                        </div>
+                                        <table className="table table-sm table-borderless small mb-0">
+                                            <thead>
+                                                <tr className="border-bottom">
+                                                    <th>Slab</th>
+                                                    <th className="text-end">Tax</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {breakdownData.slabBreakdown.map((s: any, i: number) => (
+                                                    <tr key={i}>
+                                                        <td className="text-muted">{s.slab} ({s.rate}%)</td>
+                                                        <td className="text-end fw-bold">{formatCurrency(s.tax)}</td>
+                                                    </tr>
+                                                ))}
+                                                {breakdownData.rebate87A > 0 && (
+                                                    <tr className="text-success">
+                                                        <td>Rebate (Sec 87A)</td>
+                                                        <td className="text-end">-{formatCurrency(breakdownData.rebate87A)}</td>
+                                                    </tr>
+                                                )}
+                                                <tr className="border-top">
+                                                    <td>Health & Edu Cess (4%)</td>
+                                                    <td className="text-end">{formatCurrency(breakdownData.cess)}</td>
+                                                </tr>
+                                                <tr className="table-active">
+                                                    <td className="fw-bold">Total Tax</td>
+                                                    <td className="text-end fw-bold">{formatCurrency(breakdownData.totalTax)}</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                )}
 
                                 <hr />
 
