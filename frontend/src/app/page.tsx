@@ -1,66 +1,52 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+'use client';
+
+import { useAuth } from '@/context/AuthContext';
+import AuthForm from '@/components/AuthForm';
+import TaxDashboard from '@/components/TaxDashboard';
 
 export default function Home() {
+  const { user, loading, signOut } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="d-flex justify-content-center align-items-center vh-100">
+        <div className="spinner-border text-primary" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className={styles.intro}>
-          <h1>To get started, edit the page.tsx file.</h1>
-          <p>
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <main className="container-fluid bg-light min-vh-100 p-0">
+      {!user ? (
+        <div className="d-flex justify-content-center align-items-center vh-100 px-3">
+          <div style={{ maxWidth: '400px', width: '100%' }}>
+            <div className="text-center mb-4">
+              <h1 className="fw-bold text-primary">TaxPilot</h1>
+              <p className="text-muted">Smart Tax Comparison for Salaried Individuals</p>
+            </div>
+            <AuthForm />
+          </div>
         </div>
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className={styles.secondary}
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+      ) : (
+        <div className="p-4">
+          <header className="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-3 border-bottom gap-3">
+            <h1 className="fw-bold text-primary m-0">TaxPilot Dashboard</h1>
+            <div className="d-flex align-items-center gap-3">
+              <span className="text-muted d-none d-sm-inline">{user.email}</span>
+              <button
+                className="btn btn-outline-danger btn-sm"
+                onClick={signOut}
+              >
+                Sign Out
+              </button>
+            </div>
+          </header>
+
+          <TaxDashboard />
         </div>
-      </main>
-    </div>
+      )}
+    </main>
   );
 }
