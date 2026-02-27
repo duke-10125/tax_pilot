@@ -8,6 +8,8 @@ export interface TaxInput {
     section80dParents: number;
     parentsSenior: boolean;
     homeLoanInterest: number;
+    professionalTax: number;
+    pfContribution: number;
 }
 
 export interface SlabDetail {
@@ -57,8 +59,12 @@ export class TaxService {
         let taxableIncome = input.salary + input.otherIncome;
 
         // Deductions
+        taxableIncome -= input.professionalTax;
         taxableIncome -= this.OLD_STANDARD_DEDUCTION;
-        taxableIncome -= Math.min(input.section80c, 150000);
+
+        // 80C includes manual input + PF contribution from slip
+        const total80C = input.section80c + input.pfContribution;
+        taxableIncome -= Math.min(total80C, 150000);
 
         const dSelfCap = 25000;
         const dParentsCap = input.parentsSenior ? 50000 : 25000;
@@ -118,7 +124,8 @@ export class TaxService {
     private calculateNewRegime(input: TaxInput): TaxResult {
         let taxableIncome = input.salary + input.otherIncome;
 
-        // Deductions (Only standard deduction in New Regime)
+        // Deductions
+        taxableIncome -= input.professionalTax;
         taxableIncome -= this.NEW_STANDARD_DEDUCTION;
         taxableIncome = Math.max(0, taxableIncome);
 

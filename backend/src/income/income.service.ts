@@ -10,6 +10,14 @@ export interface TaxProfileDto {
     section_80d_parents: number;
     parents_senior: boolean;
     home_loan_interest: number;
+    basic_salary: number;
+    hra: number;
+    bonus: number;
+    gratuity: number;
+    special_allowance: number;
+    professional_tax: number;
+    pf_contribution: number;
+    leave_encashment: number;
 }
 
 @Injectable()

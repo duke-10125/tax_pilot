@@ -27,6 +27,8 @@ export class IncomeController {
             section80dParents: profile.section_80d_parents,
             parentsSenior: profile.parents_senior,
             homeLoanInterest: profile.home_loan_interest,
+            professionalTax: profile.professional_tax,
+            pfContribution: profile.pf_contribution,
         });
 
         return { profile, comparison };
@@ -45,6 +47,8 @@ export class IncomeController {
             section80dParents: profile.section_80d_parents,
             parentsSenior: profile.parents_senior,
             homeLoanInterest: profile.home_loan_interest,
+            professionalTax: profile.professional_tax,
+            pfContribution: profile.pf_contribution,
         });
 
         return { profile, comparison };
