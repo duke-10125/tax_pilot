@@ -21,12 +21,13 @@ export default function TaxDashboard() {
         home_loan_interest: 0,
     });
     const [comparison, setComparison] = useState<any>(null);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     const [saving, setSaving] = useState(false);
     const [showBreakdown, setShowBreakdown] = useState<'OLD' | 'NEW' | null>(null);
 
     useEffect(() => {
-        fetchData();
+        // We start with a clean slate on refresh as requested.
+        // Users can manually load their saved data if needed.
     }, []);
 
     const fetchData = async () => {
@@ -149,7 +150,10 @@ export default function TaxDashboard() {
                     <div className="card-body p-4">
                         <div className="d-flex justify-content-between align-items-center mb-4">
                             <h5 className="fw-bold m-0">Tax Profile Details</h5>
-                            <div>
+                            <div className="d-flex gap-2">
+                                <button type="button" className="btn btn-outline-secondary btn-sm" onClick={fetchData}>
+                                    <i className="bi bi-arrow-clockwise me-2"></i>Load Saved Profile
+                                </button>
                                 <label className="btn btn-outline-primary btn-sm m-0">
                                     <i className="bi bi-upload me-2"></i>Upload Salary Slip
                                     <input type="file" hidden onChange={handleOcrUpload} accept="image/*" />
@@ -157,7 +161,7 @@ export default function TaxDashboard() {
                             </div>
                         </div>
 
-                        <form onSubmit={handleSave}>
+                        <form onSubmit={handleSave} autoComplete="off">
                             <div className="row g-3">
                                 <div className="col-md-6">
                                     <label className="form-label small fw-bold">Annual Gross Salary</label>
