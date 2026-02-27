@@ -31,7 +31,7 @@ export default function AuthForm() {
     };
 
     return (
-        <div className="card shadow-sm p-4">
+        <div className="card shadow-sm p-3 p-md-4">
             <h2 className="text-center mb-4">{isSignUp ? 'Create Account' : 'Welcome Back'}</h2>
             {message && (
                 <div className={`alert alert-${message.type}`} role="alert">

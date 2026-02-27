@@ -30,11 +30,11 @@ export default function Home() {
           </div>
         </div>
       ) : (
-        <div className="p-4">
+        <div className="p-3 p-md-4">
           <header className="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-3 border-bottom gap-3">
-            <h1 className="fw-bold text-primary m-0">TaxPilot Dashboard</h1>
-            <div className="d-flex align-items-center gap-3">
-              <span className="text-muted d-none d-sm-inline">{user.email}</span>
+            <h1 className="fw-bold text-primary m-0 fs-4 fs-md-2">TaxPilot Dashboard</h1>
+            <div className="d-flex align-items-center gap-2 gap-md-3">
+              <span className="text-muted d-none d-sm-inline small">{user.email}</span>
               <button
                 className="btn btn-outline-danger btn-sm"
                 onClick={signOut}

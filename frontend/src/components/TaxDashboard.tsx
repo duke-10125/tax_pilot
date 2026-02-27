@@ -191,10 +191,10 @@ export default function TaxDashboard() {
         <div className="row g-4">
             <div className="col-lg-8">
                 <div className="card shadow-sm border-0 mb-4">
-                    <div className="card-body p-4">
-                        <div className="d-flex justify-content-between align-items-center mb-4">
+                    <div className="card-body p-3 p-md-4">
+                        <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
                             <h5 className="fw-bold m-0">Tax Profile Details</h5>
-                            <div className="d-flex gap-2">
+                            <div className="d-grid d-md-flex gap-2">
                                 <button type="button" className="btn btn-outline-secondary btn-sm" onClick={fetchData}>
                                     <i className="bi bi-arrow-clockwise me-2"></i>Load Saved Profile
                                 </button>
@@ -268,27 +268,27 @@ export default function TaxDashboard() {
                                     <>
                                         <div className="col-12"><small className="fw-bold text-primary text-uppercase">Salary Breakdown (Annualized)</small></div>
 
-                                        <div className="col-md-4">
+                                        <div className="col-6 col-md-4">
                                             <label className="form-label small fw-bold">Basic Salary</label>
                                             <input type="number" className="form-control form-control-sm" name="basic_salary" value={profile.basic_salary === 0 ? '' : profile.basic_salary} onChange={handleChange} placeholder="0" onFocus={(e) => e.target.select()} />
                                         </div>
-                                        <div className="col-md-4">
+                                        <div className="col-6 col-md-4">
                                             <label className="form-label small fw-bold">HRA</label>
                                             <input type="number" className="form-control form-control-sm" name="hra" value={profile.hra === 0 ? '' : profile.hra} onChange={handleChange} placeholder="0" onFocus={(e) => e.target.select()} />
                                         </div>
-                                        <div className="col-md-4">
+                                        <div className="col-6 col-md-4">
                                             <label className="form-label small fw-bold">Special Allowance</label>
                                             <input type="number" className="form-control form-control-sm" name="special_allowance" value={profile.special_allowance === 0 ? '' : profile.special_allowance} onChange={handleChange} placeholder="0" onFocus={(e) => e.target.select()} />
                                         </div>
-                                        <div className="col-md-4">
+                                        <div className="col-6 col-md-4">
                                             <label className="form-label small fw-bold">Bonus</label>
                                             <input type="number" className="form-control form-control-sm" name="bonus" value={profile.bonus === 0 ? '' : profile.bonus} onChange={handleChange} placeholder="0" onFocus={(e) => e.target.select()} />
                                         </div>
-                                        <div className="col-md-4">
+                                        <div className="col-6 col-md-4">
                                             <label className="form-label small fw-bold">Gratuity</label>
                                             <input type="number" className="form-control form-control-sm" name="gratuity" value={profile.gratuity === 0 ? '' : profile.gratuity} onChange={handleChange} placeholder="0" onFocus={(e) => e.target.select()} />
                                         </div>
-                                        <div className="col-md-4">
+                                        <div className="col-6 col-md-4">
                                             <label className="form-label small fw-bold">Leave Encashment</label>
                                             <input type="number" className="form-control form-control-sm" name="leave_encashment" value={profile.leave_encashment === 0 ? '' : profile.leave_encashment} onChange={handleChange} placeholder="0" onFocus={(e) => e.target.select()} />
                                         </div>
@@ -402,7 +402,7 @@ export default function TaxDashboard() {
 
                 {comparison && comparison[comparison.suggestedRegime.toLowerCase() + 'Regime'].totalTax > 0 && (
                     <div className="card shadow-sm border-0 mb-4 bg-light">
-                        <div className="card-body p-4">
+                        <div className="card-body p-3 p-md-4">
                             <h6 className="fw-bold mb-3"><i className="bi bi-lightbulb text-warning me-2"></i>Tax Saving Suggestions</h6>
                             <div className="row g-3">
                                 {getSuggestions().map((s, i) => (
@@ -425,8 +425,8 @@ export default function TaxDashboard() {
             </div>
 
             <div className="col-lg-4">
-                <div className="card shadow-sm border-0 sticky-top" style={{ top: '24px' }}>
-                    <div className="card-body p-4">
+                <div className="card shadow-sm border-0 sticky-lg-top" style={{ top: '24px' }}>
+                    <div className="card-body p-3 p-md-4">
                         <h5 className="fw-bold mb-4">Comparison Result</h5>
 
                         {comparison ? (
@@ -460,40 +460,42 @@ export default function TaxDashboard() {
                                             <h6 className="fw-bold m-0">{showBreakdown} Regime Breakdown</h6>
                                             <button className="btn-close small" style={{ fontSize: '0.7rem' }} onClick={() => setShowBreakdown(null)}></button>
                                         </div>
-                                        <table className="table table-sm table-borderless small mb-0">
-                                            <thead>
-                                                <tr className="border-bottom bg-light">
-                                                    <th className="py-2">Net Taxable Income</th>
-                                                    <th className="text-end py-2">{formatCurrency(breakdownData.taxableIncome)}</th>
-                                                </tr>
-                                                <tr className="border-bottom">
-                                                    <th className="pt-3">Slab Breakdown</th>
-                                                    <th className="text-end pt-3">Tax</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {breakdownData.slabBreakdown.map((s: any, i: number) => (
-                                                    <tr key={i}>
-                                                        <td className="text-muted">{s.slab} ({s.rate}%)</td>
-                                                        <td className="text-end fw-bold">{formatCurrency(s.tax)}</td>
+                                        <div className="table-responsive">
+                                            <table className="table table-sm table-borderless small mb-0" style={{ minWidth: '250px' }}>
+                                                <thead>
+                                                    <tr className="border-bottom bg-light">
+                                                        <th className="py-2">Net Taxable Income</th>
+                                                        <th className="text-end py-2">{formatCurrency(breakdownData.taxableIncome)}</th>
                                                     </tr>
-                                                ))}
-                                                {breakdownData.rebate87A > 0 && (
-                                                    <tr className="text-success">
-                                                        <td>Rebate (Sec 87A)</td>
-                                                        <td className="text-end">-{formatCurrency(breakdownData.rebate87A)}</td>
+                                                    <tr className="border-bottom">
+                                                        <th className="pt-3">Slab Breakdown</th>
+                                                        <th className="text-end pt-3">Tax</th>
                                                     </tr>
-                                                )}
-                                                <tr className="border-top">
-                                                    <td>Health & Edu Cess (4%)</td>
-                                                    <td className="text-end">{formatCurrency(breakdownData.cess)}</td>
-                                                </tr>
-                                                <tr className="table-active">
-                                                    <td className="fw-bold">Total Tax</td>
-                                                    <td className="text-end fw-bold">{formatCurrency(breakdownData.totalTax)}</td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
+                                                </thead>
+                                                <tbody>
+                                                    {breakdownData.slabBreakdown.map((s: any, i: number) => (
+                                                        <tr key={i}>
+                                                            <td className="text-muted">{s.slab} ({s.rate}%)</td>
+                                                            <td className="text-end fw-bold">{formatCurrency(s.tax)}</td>
+                                                        </tr>
+                                                    ))}
+                                                    {breakdownData.rebate87A > 0 && (
+                                                        <tr className="text-success">
+                                                            <td>Rebate (Sec 87A)</td>
+                                                            <td className="text-end">-{formatCurrency(breakdownData.rebate87A)}</td>
+                                                        </tr>
+                                                    )}
+                                                    <tr className="border-top">
+                                                        <td>Health & Edu Cess (4%)</td>
+                                                        <td className="text-end">{formatCurrency(breakdownData.cess)}</td>
+                                                    </tr>
+                                                    <tr className="table-active">
+                                                        <td className="fw-bold">Total Tax</td>
+                                                        <td className="text-end fw-bold">{formatCurrency(breakdownData.totalTax)}</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
                                     </div>
                                 )}
 
