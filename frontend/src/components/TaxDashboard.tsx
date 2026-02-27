@@ -34,7 +34,7 @@ export default function TaxDashboard() {
     const [showBreakdown, setShowBreakdown] = useState<'OLD' | 'NEW' | null>(null);
 
     useEffect(() => {
-        const totalSalary = profile.basic_salary + profile.hra + profile.special_allowance + profile.bonus + profile.gratuity + profile.leave_encashment;
+        const totalSalary = (profile.basic_salary || 0) + (profile.hra || 0) + (profile.special_allowance || 0) + (profile.bonus || 0) + (profile.gratuity || 0) + (profile.leave_encashment || 0);
         if (totalSalary !== profile.salary) {
             setProfile(prev => ({ ...prev, salary: totalSalary }));
         }
@@ -99,17 +99,37 @@ export default function TaxDashboard() {
         const file = e.target.files?.[0];
         if (!file) return;
 
+        setLoading(true);
         try {
             const data = await api.uploadSalarySlip(file);
             if (data.success) {
-                setProfile((prev) => ({
-                    ...prev,
-                    ...data.data, // Map all fields from OCR result
-                }));
-                alert(data.message);
+                // Prepare new profile state
+                const newProfile = {
+                    ...profile,
+                    ...data.data,
+                };
+
+                // If Section 80C is empty, prepopulate it with PF contribution
+                if (newProfile.section_80c === 0 && newProfile.pf_contribution > 0) {
+                    newProfile.section_80c = newProfile.pf_contribution;
+                }
+
+                // Calculate gross based on components immediately to avoid waiting for useEffect
+                newProfile.salary = (newProfile.basic_salary || 0) + (newProfile.hra || 0) + (newProfile.special_allowance || 0) + (newProfile.bonus || 0) + (newProfile.gratuity || 0) + (newProfile.leave_encashment || 0);
+
+                setProfile(newProfile);
+
+                // Automatically trigger calculation/save
+                const saveResult = await api.updateProfile(newProfile);
+                setComparison(saveResult.comparison);
+
+                alert(`${data.message}\n\nWe have automatically calculated your tax comparison based on these details.`);
             }
         } catch (err) {
             console.error('OCR failed:', err);
+            alert('Failed to parse salary slip. Please try again or enter details manually.');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -195,7 +215,7 @@ export default function TaxDashboard() {
                                             readOnly
                                         />
                                     </div>
-                                    <small className="text-muted">Total of all salary components</small>
+                                    <small className="text-muted">Total of all salary components (including benefits)</small>
                                 </div>
                                 <div className="col-md-6">
                                     <label className="form-label small fw-bold">TDS Already Paid</label>

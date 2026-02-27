@@ -14,18 +14,18 @@ export class OcrService {
         return {
             success: true,
             data: {
-                salary: 501600, // Annualizing Monthly Earnings (41,800 * 12)
+                salary: 510072, // Annualized Gross: (41,800 + 706) * 12
                 tds: 0,
-                basic_salary: 21875 * 12,
-                hra: 8750 * 12,
-                special_allowance: 8301 * 12,
-                bonus: 1822 * 12,
-                gratuity: 1052 * 12,
-                professional_tax: 208 * 12,
-                pf_contribution: 1800 * 12,
-                leave_encashment: 706 * 12,
+                basic_salary: 21875 * 12, // 262500
+                hra: 8750 * 12, // 105000
+                special_allowance: 8301 * 12, // 99612
+                bonus: 1822 * 12, // 21864
+                gratuity: 1052 * 12, // 12624
+                professional_tax: 208 * 12, // 2496
+                pf_contribution: 1800 * 12, // 21600
+                leave_encashment: 706 * 12, // 8472
             },
-            message: 'Salary slip parsed successfully! We have annualized the monthly figures.',
+            message: 'Salary slip parsed successfully! We have annualized your monthly earnings and benefits.',
         };
     }
 }
