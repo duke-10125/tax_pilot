@@ -44,7 +44,7 @@ export default function Home() {
             </div>
           </header>
 
-          <TaxDashboard />
+          <TaxDashboard key={user.id} />
         </div>
       )}
     </main>

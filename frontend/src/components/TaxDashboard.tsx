@@ -35,6 +35,18 @@ export default function TaxDashboard() {
             if (data.profile) {
                 setProfile(data.profile);
                 setComparison(data.comparison);
+            } else {
+                setProfile({
+                    salary: 0,
+                    other_income: 0,
+                    tds: 0,
+                    section_80c: 0,
+                    section_80d_self: 0,
+                    section_80d_parents: 0,
+                    parents_senior: false,
+                    home_loan_interest: 0,
+                });
+                setComparison(null);
             }
         } catch (err) {
             console.error('Error fetching profile:', err);
@@ -151,21 +163,45 @@ export default function TaxDashboard() {
                                     <label className="form-label small fw-bold">Annual Gross Salary</label>
                                     <div className="input-group">
                                         <span className="input-group-text">₹</span>
-                                        <input type="number" className="form-control" name="salary" value={profile.salary} onChange={handleChange} />
+                                        <input
+                                            type="number"
+                                            className="form-control"
+                                            name="salary"
+                                            value={profile.salary === 0 ? '' : profile.salary}
+                                            onChange={handleChange}
+                                            placeholder="0"
+                                            onFocus={(e) => e.target.select()}
+                                        />
                                     </div>
                                 </div>
                                 <div className="col-md-6">
                                     <label className="form-label small fw-bold">Other Income</label>
                                     <div className="input-group">
                                         <span className="input-group-text">₹</span>
-                                        <input type="number" className="form-control" name="other_income" value={profile.other_income} onChange={handleChange} />
+                                        <input
+                                            type="number"
+                                            className="form-control"
+                                            name="other_income"
+                                            value={profile.other_income === 0 ? '' : profile.other_income}
+                                            onChange={handleChange}
+                                            placeholder="0"
+                                            onFocus={(e) => e.target.select()}
+                                        />
                                     </div>
                                 </div>
                                 <div className="col-md-6">
                                     <label className="form-label small fw-bold">TDS Already Paid</label>
                                     <div className="input-group">
                                         <span className="input-group-text">₹</span>
-                                        <input type="number" className="form-control" name="tds" value={profile.tds} onChange={handleChange} />
+                                        <input
+                                            type="number"
+                                            className="form-control"
+                                            name="tds"
+                                            value={profile.tds === 0 ? '' : profile.tds}
+                                            onChange={handleChange}
+                                            placeholder="0"
+                                            onFocus={(e) => e.target.select()}
+                                        />
                                     </div>
                                 </div>
 
@@ -177,21 +213,45 @@ export default function TaxDashboard() {
                                         Section 80C (Max 1.5L)
                                         <InfoIcon text="Investment in PPF, LIC, ELSS, NPS, etc." />
                                     </label>
-                                    <input type="number" className="form-control" name="section_80c" value={profile.section_80c} onChange={handleChange} />
+                                    <input
+                                        type="number"
+                                        className="form-control"
+                                        name="section_80c"
+                                        value={profile.section_80c === 0 ? '' : profile.section_80c}
+                                        onChange={handleChange}
+                                        placeholder="0"
+                                        onFocus={(e) => e.target.select()}
+                                    />
                                 </div>
                                 <div className="col-md-6">
                                     <label className="form-label small fw-bold">
                                         80D Self Insurance (Max 25k)
                                         <InfoIcon text="Medical insurance premium for self, spouse, and children." />
                                     </label>
-                                    <input type="number" className="form-control" name="section_80d_self" value={profile.section_80d_self} onChange={handleChange} />
+                                    <input
+                                        type="number"
+                                        className="form-control"
+                                        name="section_80d_self"
+                                        value={profile.section_80d_self === 0 ? '' : profile.section_80d_self}
+                                        onChange={handleChange}
+                                        placeholder="0"
+                                        onFocus={(e) => e.target.select()}
+                                    />
                                 </div>
                                 <div className="col-md-6">
                                     <label className="form-label small fw-bold">
                                         80D Parents Insurance
                                         <InfoIcon text="Medical insurance premium for parents." />
                                     </label>
-                                    <input type="number" className="form-control" name="section_80d_parents" value={profile.section_80d_parents} onChange={handleChange} />
+                                    <input
+                                        type="number"
+                                        className="form-control"
+                                        name="section_80d_parents"
+                                        value={profile.section_80d_parents === 0 ? '' : profile.section_80d_parents}
+                                        onChange={handleChange}
+                                        placeholder="0"
+                                        onFocus={(e) => e.target.select()}
+                                    />
                                 </div>
                                 <div className="col-md-6 d-flex align-items-end mb-2">
                                     <div className="form-check form-switch">
@@ -204,7 +264,15 @@ export default function TaxDashboard() {
                                         Home Loan Interest (Max 2L)
                                         <InfoIcon text="Interest paid on home loan under Section 24." />
                                     </label>
-                                    <input type="number" className="form-control" name="home_loan_interest" value={profile.home_loan_interest} onChange={handleChange} />
+                                    <input
+                                        type="number"
+                                        className="form-control"
+                                        name="home_loan_interest"
+                                        value={profile.home_loan_interest === 0 ? '' : profile.home_loan_interest}
+                                        onChange={handleChange}
+                                        placeholder="0"
+                                        onFocus={(e) => e.target.select()}
+                                    />
                                 </div>
 
                                 <div className="col-12 mt-4">
